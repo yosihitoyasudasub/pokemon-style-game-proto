@@ -252,7 +252,9 @@ class Character extends Sprite {
     animate = false,
     rotation = 0,
     scale = 1,
-    dialogue = ['']
+    dialogue = [''],
+    npcId = null,
+    llmEnabled = false
   }) {
     super({
       position,
@@ -267,5 +269,46 @@ class Character extends Sprite {
 
     this.dialogue = dialogue
     this.dialogueIndex = 0
+    this.npcId = npcId
+    this.llmEnabled = llmEnabled
+    this.isWaitingForResponse = false
+  }
+
+  // LLM会話開始
+  async startLLMConversation(playerInput, context = {}) {
+    if (!this.llmEnabled || !window.conversationManager) {
+      return this.dialogue[this.dialogueIndex] || this.dialogue[0];
+    }
+
+    this.isWaitingForResponse = true;
+    
+    try {
+      const response = await window.conversationManager.startConversation(
+        this.npcId,
+        playerInput,
+        context
+      );
+      
+      return response;
+    } catch (error) {
+      console.error('LLM conversation error:', error);
+      return this.dialogue[this.dialogueIndex] || this.dialogue[0];
+    } finally {
+      this.isWaitingForResponse = false;
+    }
+  }
+
+  // 従来の会話進行
+  nextDialogue() {
+    if (this.dialogueIndex < this.dialogue.length - 1) {
+      this.dialogueIndex++;
+      return this.dialogue[this.dialogueIndex];
+    }
+    return null;
+  }
+
+  // 会話リセット
+  resetDialogue() {
+    this.dialogueIndex = 0;
   }
 }

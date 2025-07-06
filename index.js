@@ -80,7 +80,9 @@ charactersMap.forEach((row, i) => {
           },
           scale: 3,
           animate: true,
-          dialogue: ['...', 'Hey mister, have you seen my Doggochu?']
+          dialogue: ['...', 'Hey mister, have you seen my Doggochu?'],
+          npcId: 'villager',
+          llmEnabled: true
         })
       )
     }
@@ -98,7 +100,9 @@ charactersMap.forEach((row, i) => {
             hold: 60
           },
           scale: 3,
-          dialogue: ['My bones hurt.']
+          dialogue: ['My bones hurt.'],
+          npcId: 'oldMan',
+          llmEnabled: true
         })
       )
     }
@@ -412,6 +416,16 @@ window.addEventListener('keydown', (e) => {
   if (player.isInteracting) {
     switch (e.key) {
       case ' ':
+        // LLM会話が有効で、会話中の場合
+        if (player.interactionAsset.llmEnabled && window.conversationManager && window.conversationManager.isEnabled) {
+          // 会話終了
+          player.isInteracting = false
+          player.interactionAsset.resetDialogue()
+          document.querySelector('#characterDialogueBox').style.display = 'none'
+          return
+        }
+
+        // 従来の会話進行
         player.interactionAsset.dialogueIndex++
 
         const { dialogueIndex, dialogue } = player.interactionAsset
@@ -435,7 +449,14 @@ window.addEventListener('keydown', (e) => {
     case ' ':
       if (!player.interactionAsset) return
 
-      // beginning the conversation
+      // LLM会話が有効な場合
+      if (player.interactionAsset.llmEnabled && window.conversationManager && window.conversationManager.isEnabled) {
+        // LLM会話開始
+        startLLMConversation(player.interactionAsset)
+        return
+      }
+
+      // 従来の会話開始
       const firstMessage = player.interactionAsset.dialogue[0]
       document.querySelector('#characterDialogueBox').innerHTML = firstMessage
       document.querySelector('#characterDialogueBox').style.display = 'flex'
@@ -478,6 +499,51 @@ window.addEventListener('keyup', (e) => {
       break
   }
 })
+
+// LLM会話開始関数
+async function startLLMConversation(character) {
+  if (!character || !character.llmEnabled) return
+
+  // 会話UIを表示
+  const dialogueBox = document.querySelector('#characterDialogueBox')
+  dialogueBox.style.display = 'flex'
+  dialogueBox.innerHTML = '会話を開始します...'
+
+  // プレイヤーの入力を待つ
+  const playerInput = await promptForPlayerInput(character.npcId)
+  
+  if (!playerInput) {
+    dialogueBox.style.display = 'none'
+    return
+  }
+
+  // LLM会話実行
+  try {
+    const response = await character.startLLMConversation(playerInput, {
+      playerPosition: player.position,
+      gameTime: Date.now()
+    })
+
+    dialogueBox.innerHTML = response
+    player.isInteracting = true
+
+  } catch (error) {
+    console.error('LLM conversation error:', error)
+    dialogueBox.innerHTML = character.dialogue[0] || '...'
+    player.isInteracting = true
+  }
+}
+
+// プレイヤー入力取得関数
+function promptForPlayerInput(npcId) {
+  const npcNames = {
+    'oldMan': '長老',
+    'villager': '村人'
+  }
+  
+  const npcName = npcNames[npcId] || 'NPC'
+  return prompt(`${npcName}に何を話しますか？`)
+}
 
 let clicked = false
 addEventListener('click', () => {
