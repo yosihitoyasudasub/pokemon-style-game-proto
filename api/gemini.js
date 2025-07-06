@@ -1,5 +1,9 @@
 // Vercel Serverless Function for Gemini API integration
 export default async function handler(req, res) {
+  console.log('=== Gemini API Handler Start ===');
+  console.log('Method:', req.method);
+  console.log('Headers:', req.headers);
+  
   // CORS設定
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -7,11 +11,13 @@ export default async function handler(req, res) {
 
   // OPTIONSリクエストの処理
   if (req.method === 'OPTIONS') {
+    console.log('OPTIONS request handled');
     return res.status(200).end();
   }
 
   // POSTメソッドのみ許可
   if (req.method !== 'POST') {
+    console.log('Method not allowed:', req.method);
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -19,14 +25,18 @@ export default async function handler(req, res) {
 
   try {
     const { npcId, playerInput, context } = req.body;
+    console.log('Request body:', { npcId, playerInput, context });
     
     // 入力検証
     if (!npcId || !playerInput) {
+      console.log('Invalid input - missing required fields');
       return res.status(400).json({ error: 'Invalid input: npcId and playerInput are required' });
     }
 
     // 環境変数からAPIキーを取得
     const apiKey = process.env.GEMINI_API_KEY;
+    console.log('API Key exists:', !!apiKey);
+    console.log('API Key length:', apiKey ? apiKey.length : 0);
     
     if (!apiKey) {
       console.error('GEMINI_API_KEY not configured');
@@ -35,13 +45,16 @@ export default async function handler(req, res) {
 
     // NPC設定に基づくプロンプト生成
     const prompt = generatePrompt(npcId, playerInput, context);
+    console.log('Generated prompt:', prompt);
 
-    // Gemini API呼び出し
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+    // Gemini API呼び出し（修正：APIキーをURLパラメータとして渡す）
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    console.log('Making request to Gemini API...');
+    
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         contents: [{
@@ -58,12 +71,21 @@ export default async function handler(req, res) {
       })
     });
 
+    console.log('Gemini API response status:', response.status);
+    console.log('Gemini API response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
+      const errorText = await response.text();
       console.error('Gemini API error:', response.status, response.statusText);
-      return res.status(500).json({ error: 'External service error' });
+      console.error('Error response body:', errorText);
+      return res.status(500).json({ 
+        error: 'External service error',
+        details: errorText
+      });
     }
 
     const data = await response.json();
+    console.log('Gemini API response data:', data);
     
     // レスポンス検証
     if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
@@ -75,6 +97,8 @@ export default async function handler(req, res) {
     const executionTime = Date.now() - startTime;
 
     console.log(`API execution time: ${executionTime}ms for NPC: ${npcId}`);
+    console.log('Generated AI response:', aiResponse);
+    console.log('=== Gemini API Handler End ===');
 
     res.status(200).json({ 
       response: aiResponse,
@@ -84,9 +108,13 @@ export default async function handler(req, res) {
 
   } catch (error) {
     const executionTime = Date.now() - startTime;
-    console.error(`Error after ${executionTime}ms:`, error.message);
+    console.error(`Error after ${executionTime}ms:`, error);
+    console.error('Error stack:', error.stack);
     
-    res.status(500).json({ error: 'Service temporarily unavailable' });
+    res.status(500).json({ 
+      error: 'Service temporarily unavailable',
+      details: error.message
+    });
   }
 }
 
