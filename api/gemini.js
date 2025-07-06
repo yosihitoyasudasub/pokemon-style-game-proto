@@ -24,7 +24,7 @@ export default async function handler(req, res) {
   const startTime = Date.now();
 
   try {
-    const { npcId, playerInput, context } = req.body;
+    const { npcId, playerInput, context, apiKey } = req.body;
     console.log('Request body:', { npcId, playerInput, context });
     
     // 入力検証
@@ -33,22 +33,22 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Invalid input: npcId and playerInput are required' });
     }
 
-    // 環境変数からAPIキーを取得
-    const apiKey = process.env.GEMINI_API_KEY;
-    console.log('API Key exists:', !!apiKey);
-    console.log('API Key length:', apiKey ? apiKey.length : 0);
+    // APIキーの取得（フロントエンドから送信されたもの）
+    const userApiKey = apiKey;
+    console.log('API Key provided:', !!userApiKey);
+    console.log('API Key length:', userApiKey ? userApiKey.length : 0);
     
-    if (!apiKey) {
-      console.error('GEMINI_API_KEY not configured');
-      return res.status(500).json({ error: 'Service unavailable - API key not configured' });
+    if (!userApiKey) {
+      console.error('No API key provided');
+      return res.status(400).json({ error: 'API key is required. Please set your Gemini API key in the settings.' });
     }
 
     // NPC設定に基づくプロンプト生成
     const prompt = generatePrompt(npcId, playerInput, context);
     console.log('Generated prompt:', prompt);
 
-    // Gemini API呼び出し（修正：APIキーをURLパラメータとして渡す）
-    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // Gemini API呼び出し（ユーザーのAPIキーを使用）
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${userApiKey}`;
     console.log('Making request to Gemini API...');
     
     const response = await fetch(apiUrl, {

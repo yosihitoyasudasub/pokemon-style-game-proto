@@ -297,7 +297,6 @@ class APIKeyManager {
     this.showStatus('接続をテスト中...', 'info');
 
     try {
-      // 簡単なテストリクエスト
       const response = await fetch('/api/gemini', {
         method: 'POST',
         headers: {
@@ -306,6 +305,7 @@ class APIKeyManager {
         body: JSON.stringify({
           npcId: 'villager',
           playerInput: 'こんにちは',
+          apiKey,
           context: { test: true }
         })
       });

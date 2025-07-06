@@ -14,6 +14,12 @@ class ConversationManager {
       return this.getFallbackResponse(npcId);
     }
 
+    // APIキーを取得
+    const apiKey = localStorage.getItem('gemini_api_key');
+    if (!apiKey) {
+      return 'APIキーが設定されていません。設定画面でAPIキーを入力してください。';
+    }
+
     if (this.isWaitingForResponse) {
       return '応答を待っています...';
     }
@@ -30,6 +36,7 @@ class ConversationManager {
         body: JSON.stringify({
           npcId,
           playerInput,
+          apiKey, // APIキーを送信
           context: {
             ...context,
             timestamp: Date.now(),
