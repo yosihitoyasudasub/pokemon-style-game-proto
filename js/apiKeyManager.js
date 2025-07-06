@@ -18,12 +18,16 @@ class APIKeyManager {
           <div class="modal-body">
             <div class="security-warning">
               <h3>⚠️ セキュリティ警告</h3>
-              <p>APIキーはサーバーサイドで安全に管理されますが、以下の点にご注意ください：</p>
+              <p><strong>APIキーの取り扱いについて：</strong></p>
               <ul>
+                <li>このアプリケーションはあなたのAPIキーをサーバーに送信します</li>
+                <li>APIキーはHTTPSで暗号化されて送信されます</li>
+                <li>サーバーログにはAPIキーの内容は記録されません</li>
+                <li>ブラウザの開発者ツールでAPIキーが確認される可能性があります</li>
+                <li>専用のAPIキーを使用し、定期的に更新することを推奨します</li>
                 <li>信頼できる環境でのみ使用してください</li>
-                <li>専用のAPIキーを使用してください</li>
-                <li>定期的にキーを更新してください</li>
               </ul>
+              <p><strong>使用量：</strong>あなたのAPIキーの使用量と料金はあなたに発生します</p>
             </div>
             <div class="form-group">
               <label for="apiKeyInput">Gemini APIキー:</label>
@@ -379,6 +383,12 @@ class APIKeyManager {
     }, 3000);
   }
 }
+
+// セッション終了時のセキュリティ対策
+window.addEventListener('beforeunload', () => {
+  // セッション終了時にAPIキーを削除（オプション）
+  // localStorage.removeItem('gemini_api_key');
+});
 
 // グローバルインスタンス
 window.apiKeyManager = new APIKeyManager(); 

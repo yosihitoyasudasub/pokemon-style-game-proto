@@ -37,6 +37,7 @@ export default async function handler(req, res) {
     const userApiKey = apiKey;
     console.log('API Key provided:', !!userApiKey);
     console.log('API Key length:', userApiKey ? userApiKey.length : 0);
+    // セキュリティ: APIキーの内容は一切ログに出力しない
     
     if (!userApiKey) {
       console.error('No API key provided');
@@ -108,12 +109,12 @@ export default async function handler(req, res) {
 
   } catch (error) {
     const executionTime = Date.now() - startTime;
-    console.error(`Error after ${executionTime}ms:`, error);
-    console.error('Error stack:', error.stack);
+    console.error(`Error after ${executionTime}ms:`, error.message);
+    // セキュリティ: スタックトレースや詳細情報は出力しない
     
     res.status(500).json({ 
-      error: 'Service temporarily unavailable',
-      details: error.message
+      error: 'Service temporarily unavailable'
+      // セキュリティ: 詳細なエラー情報は含めない
     });
   }
 }
