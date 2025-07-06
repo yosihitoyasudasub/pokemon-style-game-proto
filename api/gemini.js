@@ -48,7 +48,7 @@ export default async function handler(req, res) {
     console.log('Generated prompt:', prompt);
 
     // Gemini API呼び出し（修正：APIキーをURLパラメータとして渡す）
-    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    const apiUrl = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     console.log('Making request to Gemini API...');
     
     const response = await fetch(apiUrl, {
