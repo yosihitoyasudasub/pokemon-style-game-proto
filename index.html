@@ -1,18 +1,14 @@
 <head>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-    rel="stylesheet"
-  />
   <style>
     * {
-      font-family: 'Press Start 2P', cursive;
       box-sizing: border-box;
     }
 
     body {
       background-color: black;
+      font-family: 'PixelMplus10', 'メイリオ', 'Meiryo', 'Arial', sans-serif;
     }
 
     h1 {
@@ -27,6 +23,44 @@
 
     button:hover {
       background-color: #ddd;
+    }
+
+    /* PixelMplus10（通常） */
+    @font-face {
+      font-family: 'PixelMplus10';
+      src: url('./fonts/PixelMplus10-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    /* PixelMplus10（太字） */
+    @font-face {
+      font-family: 'PixelMplus10';
+      src: url('./fonts/PixelMplus10-Bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+    /* PixelMplus12（通常） */
+    @font-face {
+      font-family: 'PixelMplus12';
+      src: url('./fonts/PixelMplus12-Regular.ttf') format('truetype');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+    /* PixelMplus12（太字） */
+    @font-face {
+      font-family: 'PixelMplus12';
+      src: url('./fonts/PixelMplus12-Bold.ttf') format('truetype');
+      font-weight: 700;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* 大きい文字にPixelMplus12を使いたい場合 */
+    .big-text {
+      font-family: 'PixelMplus12', 'メイリオ', 'Meiryo', 'Arial', sans-serif;
     }
   </style>
 </head>
