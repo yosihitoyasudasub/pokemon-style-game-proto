@@ -94,12 +94,15 @@
       border-top: 4px black solid;
       display: none;
       padding: 12px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
     "
   >
-    <div id="npcChatLog" style="height: calc(100% - 36px); overflow-y: auto;"></div>
-    <form id="npcChatForm" style="display: flex; height: 24px; margin-top: 4px;">
-      <input type="text" id="npcPlayerInput" maxlength="100" style="flex: 1; font-family: 'PixelMplus10', 'メイリオ', 'Meiryo', 'Arial', sans-serif; font-size: 16px; border: 1px solid #888; background: #f8f8f8; padding: 2px 6px; outline: none;">
-      <button type="submit" style="margin-left: 4px; font-family: 'PixelMplus10', 'メイリオ', 'Meiryo', 'Arial', sans-serif; font-size: 16px; border: 1px solid #888; background: #eee; cursor: pointer;">送信</button>
+    <div id="npcChatLog" style="flex: 1 1 auto; overflow-y: auto;"></div>
+    <form id="npcChatForm" style="display: flex; align-items: flex-end; width: 100%; margin-top: 4px;">
+      <input type="text" id="npcPlayerInput" maxlength="100" style="width: 50%; min-width: 120px; font-family: 'PixelMplus10', 'メイリオ', 'Meiryo', 'Arial', sans-serif; font-size: 16px; border: 1px solid #888; background: #f8f8f8; padding: 2px 6px; outline: none; margin-right: auto;">
+      <button type="submit" style="margin-left: 8px; font-family: 'PixelMplus10', 'メイリオ', 'Meiryo', 'Arial', sans-serif; font-size: 16px; border: 1px solid #888; background: #eee; cursor: pointer; align-self: flex-end;">送信</button>
     </form>
   </div>
 
