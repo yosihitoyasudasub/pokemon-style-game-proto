@@ -95,7 +95,13 @@
       display: none;
       padding: 12px;
     "
-  ></div>
+  >
+    <div id="npcChatLog" style="height: calc(100% - 36px); overflow-y: auto;"></div>
+    <form id="npcChatForm" style="display: flex; height: 24px; margin-top: 4px;">
+      <input type="text" id="npcPlayerInput" maxlength="100" style="flex: 1; font-family: 'PixelMplus10', 'メイリオ', 'Meiryo', 'Arial', sans-serif; font-size: 16px; border: 1px solid #888; background: #f8f8f8; padding: 2px 6px; outline: none;">
+      <button type="submit" style="margin-left: 4px; font-family: 'PixelMplus10', 'メイリオ', 'Meiryo', 'Arial', sans-serif; font-size: 16px; border: 1px solid #888; background: #eee; cursor: pointer;">送信</button>
+    </form>
+  </div>
 
   <div id="userInterface" style="display: none">
     <!-- Represents health bar of draggle (enemy) -->
