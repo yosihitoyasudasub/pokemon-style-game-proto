@@ -246,7 +246,7 @@ function endNpcChatDialogue() {
 }
 
 // --- 追加: フォーム送信イベント ---
-npcChatForm.addEventListener('submit', function(e) {
+npcChatForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   if (!npcChatActive) return;
   const input = npcPlayerInput.value.trim();
@@ -254,11 +254,47 @@ npcChatForm.addEventListener('submit', function(e) {
   npcChatLog.push(`<span style='color: #007acc;'>プレイヤー: ${input}</span>`);
   renderNpcChatLog();
   npcPlayerInput.value = '';
-  // ここでNPCの返答を追加（例: ランダムな返答 or LLM連携）
-  setTimeout(() => {
-    npcChatLog.push('NPC: ...（返答例）');
+
+  // LLMが有効な場合はAI返答、無効な場合はランダム返答
+  if (player.interactionAsset && player.interactionAsset.llmEnabled && window.conversationManager && window.conversationManager.isEnabled) {
+    // LLM返答
+    npcPlayerInput.disabled = true;
+    npcChatForm.querySelector('button').disabled = true;
+    npcChatLog.push('NPC: ...（AI応答中）');
     renderNpcChatLog();
-  }, 500);
+    try {
+      const response = await player.interactionAsset.startLLMConversation(input, {
+        playerPosition: player.position,
+        gameTime: Date.now()
+      });
+      npcChatLog.pop(); // ...（AI応答中）を削除
+      npcChatLog.push(`NPC: ${response}`);
+      renderNpcChatLog();
+    } catch (error) {
+      npcChatLog.pop();
+      npcChatLog.push('NPC: ...（AI応答失敗）');
+      renderNpcChatLog();
+    }
+    npcPlayerInput.disabled = false;
+    npcChatForm.querySelector('button').disabled = false;
+    npcPlayerInput.focus();
+  } else {
+    // ランダム返答
+    const fallbackResponses = [
+      'こんにちは！',
+      '元気ですか？',
+      '今日はいい天気ですね。',
+      '最近どう？',
+      '冒険は順調？',
+      '村の噂を聞きましたか？',
+      'また話しかけてくださいね。'
+    ];
+    const response = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+    setTimeout(() => {
+      npcChatLog.push(`NPC: ${response}`);
+      renderNpcChatLog();
+    }, 500);
+  }
 });
 
 function animate() {
