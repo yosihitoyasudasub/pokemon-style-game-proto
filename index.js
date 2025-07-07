@@ -207,6 +207,60 @@ const battle = {
   initiated: false
 }
 
+// --- 追加: チャットログ管理用配列 ---
+let npcChatLog = [];
+let npcChatActive = false;
+
+// --- 追加: チャットUIのDOM取得 ---
+const characterDialogueBox = document.querySelector('#characterDialogueBox');
+const npcChatLogDiv = document.getElementById('npcChatLog');
+const npcChatForm = document.getElementById('npcChatForm');
+const npcPlayerInput = document.getElementById('npcPlayerInput');
+
+// --- 追加: ログ描画関数 ---
+function renderNpcChatLog() {
+  npcChatLogDiv.innerHTML = npcChatLog.map(msg => `<div>${msg}</div>`).join('');
+  npcChatLogDiv.scrollTop = npcChatLogDiv.scrollHeight;
+}
+
+// --- 追加: NPC会話開始 ---
+function startNpcChatDialogue(dialogues) {
+  npcChatLog = [];
+  npcChatActive = true;
+  characterDialogueBox.style.display = 'flex';
+  npcPlayerInput.value = '';
+  npcPlayerInput.disabled = false;
+  npcChatForm.querySelector('button').disabled = false;
+  if (dialogues && dialogues.length > 0) {
+    npcChatLog.push(dialogues[0]);
+    renderNpcChatLog();
+  }
+  npcPlayerInput.focus();
+}
+
+// --- 追加: NPC会話終了 ---
+function endNpcChatDialogue() {
+  npcChatActive = false;
+  characterDialogueBox.style.display = 'none';
+  npcChatLog = [];
+}
+
+// --- 追加: フォーム送信イベント ---
+npcChatForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  if (!npcChatActive) return;
+  const input = npcPlayerInput.value.trim();
+  if (!input) return;
+  npcChatLog.push(`<span style='color: #007acc;'>プレイヤー: ${input}</span>`);
+  renderNpcChatLog();
+  npcPlayerInput.value = '';
+  // ここでNPCの返答を追加（例: ランダムな返答 or LLM連携）
+  setTimeout(() => {
+    npcChatLog.push('NPC: ...（返答例）');
+    renderNpcChatLog();
+  }, 500);
+});
+
 function animate() {
   const animationId = window.requestAnimationFrame(animate)
   renderables.forEach((renderable) => {
@@ -414,54 +468,21 @@ animate()
 let lastKey = ''
 window.addEventListener('keydown', (e) => {
   if (player.isInteracting) {
-    switch (e.key) {
-      case ' ':
-        // LLM会話が有効で、会話中の場合
-        if (player.interactionAsset.llmEnabled && window.conversationManager && window.conversationManager.isEnabled) {
-          // 会話終了
-          player.isInteracting = false
-          player.interactionAsset.resetDialogue()
-          document.querySelector('#characterDialogueBox').style.display = 'none'
-          return
-        }
-
-        // 従来の会話進行
-        player.interactionAsset.dialogueIndex++
-
-        const { dialogueIndex, dialogue } = player.interactionAsset
-        if (dialogueIndex <= dialogue.length - 1) {
-          document.querySelector('#characterDialogueBox').innerHTML =
-            player.interactionAsset.dialogue[dialogueIndex]
-          return
-        }
-
-        // finish conversation
-        player.isInteracting = false
-        player.interactionAsset.dialogueIndex = 0
-        document.querySelector('#characterDialogueBox').style.display = 'none'
-
-        break
+    if (e.key === 'Escape') {
+      endNpcChatDialogue();
+      player.isInteracting = false;
+      player.interactionAsset.resetDialogue();
+      return;
     }
-    return
+    return;
   }
-
+  if (e.key === ' ') {
+    if (!player.interactionAsset) return;
+    // チャットUIで会話開始
+    startNpcChatDialogue(player.interactionAsset.dialogue);
+    player.isInteracting = true;
+  }
   switch (e.key) {
-    case ' ':
-      if (!player.interactionAsset) return
-
-      // LLM会話が有効な場合
-      if (player.interactionAsset.llmEnabled && window.conversationManager && window.conversationManager.isEnabled) {
-        // LLM会話開始
-        startLLMConversation(player.interactionAsset)
-        return
-      }
-
-      // 従来の会話開始
-      const firstMessage = player.interactionAsset.dialogue[0]
-      document.querySelector('#characterDialogueBox').innerHTML = firstMessage
-      document.querySelector('#characterDialogueBox').style.display = 'flex'
-      player.isInteracting = true
-      break
     case 'w':
       keys.w.pressed = true
       lastKey = 'w'
@@ -470,12 +491,10 @@ window.addEventListener('keydown', (e) => {
       keys.a.pressed = true
       lastKey = 'a'
       break
-
     case 's':
       keys.s.pressed = true
       lastKey = 's'
       break
-
     case 'd':
       keys.d.pressed = true
       lastKey = 'd'
