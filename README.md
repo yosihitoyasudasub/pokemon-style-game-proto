@@ -179,3 +179,15 @@ pokemon-style-game-proto/
 ### 連絡先
 - GitHub: [プロジェクトリポジトリ](https://github.com/your-username/pokemon-style-game-proto)
 - Issues: [GitHub Issues](https://github.com/your-username/pokemon-style-game-proto/issues) 
+
+## セットアップ
+
+### 1. リポジトリのクローン
+```bash
+git clone https://github.com/your-username/pokemon-style-game-proto.git
+cd pokemon-style-game-proto
+```
+
+### 2. APIキーの設定
+1. [Google AI Studio](https://makersuite.google.com/app/apikey)でAPIキーを取得
+2. ゲーム内でAPIキーを設定（詳細は「APIキーの取得・設定方法」を参照）
