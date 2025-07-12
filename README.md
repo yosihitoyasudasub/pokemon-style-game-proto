@@ -174,7 +174,7 @@ pokemon-style-game-proto/
 問題や質問がある場合は、GitHubのIssuesで報告してください。
 
 ### 貢献
-プルリクエストやイシューの報告を歓迎します。
+イシューの報告を歓迎します。
 
 ### 連絡先
 - GitHub: [プロジェクトリポジトリ](https://github.com/your-username/pokemon-style-game-proto)
